@@ -1,4 +1,3 @@
-
 import { useGame } from '../contexts/GameContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -15,18 +14,18 @@ import {
 } from 'lucide-react';
 
 export const ActionPanel = () => {
-  const { state, nextTurn } = useGame();
+  const { state, dispatch, nextTurn } = useGame();
 
   const handlePhaseTransition = () => {
     switch (state.gamePhase) {
       case 'monitoring':
-        state.dispatch({ type: 'SET_PHASE', payload: 'investigation' });
+        dispatch({ type: 'SET_PHASE', payload: 'investigation' });
         break;
       case 'investigation':
-        state.dispatch({ type: 'SET_PHASE', payload: 'deployment' });
+        dispatch({ type: 'SET_PHASE', payload: 'deployment' });
         break;
       case 'deployment':
-        state.dispatch({ type: 'SET_PHASE', payload: 'resolution' });
+        dispatch({ type: 'SET_PHASE', payload: 'resolution' });
         break;
       case 'resolution':
         nextTurn();

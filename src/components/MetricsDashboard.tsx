@@ -4,7 +4,7 @@ import { MetricCard } from './MetricCard';
 import { TrendingUp, TrendingDown, Activity, Zap, Shield, AlertTriangle } from 'lucide-react';
 
 export const MetricsDashboard = () => {
-  const { state } = useGame();
+  const { state, dispatch } = useGame();
 
   const getMetricIcon = (type: string) => {
     switch (type) {
@@ -33,7 +33,7 @@ export const MetricsDashboard = () => {
             metric={metric}
             icon={getMetricIcon(metric.type)}
             isSelected={state.selectedMetrics.includes(metric.id)}
-            onInvestigate={() => state.investigationTokens > 0 && state.dispatch({ 
+            onInvestigate={() => state.investigationTokens > 0 && dispatch({ 
               type: 'USE_INVESTIGATION_TOKEN', 
               payload: metric.id 
             })}

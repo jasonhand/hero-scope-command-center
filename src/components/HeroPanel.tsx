@@ -7,7 +7,7 @@ import { HeroCard } from './HeroCard';
 import { Users, Shield, Zap } from 'lucide-react';
 
 export const HeroPanel = () => {
-  const { state } = useGame();
+  const { state, dispatch } = useGame();
 
   const availableHeroes = state.heroes.filter(hero => hero.available);
   const deployedHeroes = state.deployedHeroes;
@@ -43,7 +43,7 @@ export const HeroPanel = () => {
             isDeployed={deployedHeroes.some(d => d.heroId === hero.id)}
             onDeploy={(zone) => {
               if (hero.available) {
-                state.dispatch({
+                dispatch({
                   type: 'DEPLOY_HERO',
                   payload: { heroId: hero.id, zone, hero }
                 });
