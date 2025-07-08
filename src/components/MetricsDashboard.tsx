@@ -18,7 +18,8 @@ export const MetricsDashboard = () => {
   };
 
   return (
-    <div className="flex-1 p-4">
+    <div className="flex-1 p-4 overflow-auto">
+      <div className="min-h-0">{/* Ensures proper overflow behavior */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-primary">City Metrics Dashboard</h2>
         <div className="text-sm text-muted-foreground font-mono">
@@ -72,6 +73,7 @@ export const MetricsDashboard = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

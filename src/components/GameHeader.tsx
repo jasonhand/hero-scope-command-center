@@ -1,9 +1,14 @@
 
 import { useGame } from '../contexts/GameContext';
-import { Shield, Zap, Eye, AlertTriangle } from 'lucide-react';
+import { Shield, Zap, Eye, AlertTriangle, HelpCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
-export const GameHeader = () => {
+interface GameHeaderProps {
+  onShowHelp: () => void;
+}
+
+export const GameHeader = ({ onShowHelp }: GameHeaderProps) => {
   const { state } = useGame();
 
   const getThreatColor = (level: string) => {
@@ -42,6 +47,19 @@ export const GameHeader = () => {
               Score: {state.score.toLocaleString()}
             </Badge>
           </div>
+        </div>
+
+        {/* Help Button */}
+        <div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onShowHelp}
+            className="flex items-center space-x-2 text-accent border-accent/50 hover:bg-accent/10"
+          >
+            <HelpCircle className="w-4 h-4" />
+            <span>Tutorial</span>
+          </Button>
         </div>
 
         {/* Center - Investigation tokens */}
