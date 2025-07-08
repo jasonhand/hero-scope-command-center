@@ -44,8 +44,10 @@ export const HeroCard: React.FC<HeroCardProps> = ({ hero, isDeployed, onDeploy }
 
   const getOverallRating = () => {
     if (!hero.powerstats) return 0;
-    const stats = Object.values(hero.powerstats).filter(v => typeof v === 'number' && !isNaN(v as number));
-    return Math.round(stats.reduce((sum: number, stat: any) => sum + (Number(stat) || 0), 0) / stats.length);
+    const stats = Object.values(hero.powerstats)
+      .map(v => typeof v === 'string' ? parseInt(v) || 0 : Number(v) || 0)
+      .filter(v => !isNaN(v));
+    return stats.length > 0 ? Math.round(stats.reduce((sum, stat) => sum + stat, 0) / stats.length) : 0;
   };
 
   const zones = ['Downtown', 'Harbor', 'Industrial', 'Residential', 'Tech District'];
@@ -91,7 +93,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({ hero, isDeployed, onDeploy }
           <div className="flex items-center space-x-2 mb-2">
             {hero.powerstats && Object.entries(hero.powerstats).slice(0, 3).map(([stat, value]) => {
               const StatIcon = getStatIcon(stat);
-              const numValue = Number(value) || 0;
+              const numValue = typeof value === 'string' ? parseInt(value) || 0 : Number(value) || 0;
               return (
                 <div key={stat} className="flex items-center space-x-1">
                   <StatIcon className="w-3 h-3 text-muted-foreground" />
@@ -146,7 +148,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({ hero, isDeployed, onDeploy }
                 <div className="space-y-1">
                   {Object.entries(hero.powerstats).map(([stat, value]) => {
                     const StatIcon = getStatIcon(stat);
-                    const numValue = Number(value) || 0;
+                    const numValue = typeof value === 'string' ? parseInt(value) || 0 : Number(value) || 0;
                     return (
                       <div key={stat} className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
