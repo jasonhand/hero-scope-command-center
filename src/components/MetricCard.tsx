@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { toast } from 'sonner';
+import { useGame } from '../contexts/GameContext';
 
 interface MetricCardProps {
   metric: any;
@@ -20,6 +22,24 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   onInvestigate 
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const { state } = useGame();
+
+  const handleInvestigate = () => {
+    if (state.investigationTokens > 0) {
+      onInvestigate();
+      toast.success(`🔍 Investigating ${metric.name}`, {
+        description: `Pattern detected: ${metric.pattern || 'Irregular spikes'}. Confidence: ${metric.confidence || '87%'}`,
+        action: {
+          label: 'View Details',
+          onClick: () => console.log('Show detailed analysis')
+        }
+      });
+    } else {
+      toast.error('❌ No investigation tokens remaining', {
+        description: 'Complete this phase to get more tokens'
+      });
+    }
+  };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
@@ -132,7 +152,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         <Button
           size="sm"
           variant="outline"
-          onClick={onInvestigate}
+          onClick={handleInvestigate}
           disabled={isSelected}
           className={`text-xs ${isSelected ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
         >

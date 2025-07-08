@@ -13,6 +13,9 @@ interface GameState {
   selectedMetrics: string[];
   deployedHeroes: any[];
   threatLevel: 'low' | 'medium' | 'high' | 'critical';
+  turnTimeLeft: number;
+  maxTurnTime: number;
+  isTimerRunning: boolean;
 }
 
 interface GameContextType {
@@ -21,6 +24,9 @@ interface GameContextType {
   startInvestigation: (metricId: string) => void;
   deployHero: (heroId: string, zone: string) => void;
   nextTurn: () => void;
+  startTimer: () => void;
+  pauseTimer: () => void;
+  resetTimer: () => void;
 }
 
 const initialState: GameState = {
@@ -33,7 +39,10 @@ const initialState: GameState = {
   gamePhase: 'monitoring',
   selectedMetrics: [],
   deployedHeroes: [],
-  threatLevel: 'low'
+  threatLevel: 'low',
+  turnTimeLeft: 120, // 2 minutes per turn
+  maxTurnTime: 120,
+  isTimerRunning: false
 };
 
 const gameReducer = (state: GameState, action: any): GameState => {
@@ -62,7 +71,9 @@ const gameReducer = (state: GameState, action: any): GameState => {
         investigationTokens: 3,
         selectedMetrics: [],
         deployedHeroes: [],
-        gamePhase: 'monitoring'
+        gamePhase: 'monitoring',
+        turnTimeLeft: state.maxTurnTime,
+        isTimerRunning: false
       };
     case 'SET_PHASE':
       return { ...state, gamePhase: action.payload };
@@ -70,6 +81,18 @@ const gameReducer = (state: GameState, action: any): GameState => {
       return { ...state, score: state.score + action.payload };
     case 'SET_THREAT_LEVEL':
       return { ...state, threatLevel: action.payload };
+    case 'START_TIMER':
+      return { ...state, isTimerRunning: true };
+    case 'PAUSE_TIMER':
+      return { ...state, isTimerRunning: false };
+    case 'RESET_TIMER':
+      return { ...state, turnTimeLeft: state.maxTurnTime, isTimerRunning: false };
+    case 'TICK_TIMER':
+      return { 
+        ...state, 
+        turnTimeLeft: Math.max(0, state.turnTimeLeft - 1),
+        isTimerRunning: state.turnTimeLeft > 1 ? state.isTimerRunning : false
+      };
     default:
       return state;
   }
@@ -79,6 +102,23 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
+
+  // Timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (state.isTimerRunning && state.turnTimeLeft > 0) {
+      interval = setInterval(() => {
+        dispatch({ type: 'TICK_TIMER' });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [state.isTimerRunning, state.turnTimeLeft]);
 
   useEffect(() => {
     // Initialize game data
@@ -171,13 +211,28 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'NEXT_TURN' });
   };
 
+  const startTimer = () => {
+    dispatch({ type: 'START_TIMER' });
+  };
+
+  const pauseTimer = () => {
+    dispatch({ type: 'PAUSE_TIMER' });
+  };
+
+  const resetTimer = () => {
+    dispatch({ type: 'RESET_TIMER' });
+  };
+
   return (
     <GameContext.Provider value={{
       state,
       dispatch,
       startInvestigation,
       deployHero,
-      nextTurn
+      nextTurn,
+      startTimer,
+      pauseTimer,
+      resetTimer
     }}>
       {children}
     </GameContext.Provider>

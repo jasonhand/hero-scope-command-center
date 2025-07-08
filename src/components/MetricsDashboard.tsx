@@ -42,37 +42,6 @@ export const MetricsDashboard = () => {
         ))}
       </div>
 
-      {state.selectedMetrics.length > 0 && (
-        <div className="mt-6 p-4 holographic rounded-lg">
-          <h3 className="text-lg font-semibold text-primary mb-3">
-            Investigation Results
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {state.selectedMetrics.map((metricId) => {
-              const metric = state.cityMetrics.find(m => m.id === metricId);
-              if (!metric) return null;
-
-              return (
-                <div key={metricId} className="p-3 bg-muted/20 rounded border border-primary/20">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-sm">{metric.name}</h4>
-                    <span className="text-xs text-primary font-mono">
-                      ANALYZED
-                    </span>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    <div>Pattern detected: {metric.pattern || 'Irregular spikes'}</div>
-                    <div>Confidence: {metric.confidence || '87%'}</div>
-                    <div className="mt-2 text-xs">
-                      {metric.analysis || 'Unusual activity detected in sector 7. Correlates with high-strength hero deployments.'}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
       </div>
     </div>
   );

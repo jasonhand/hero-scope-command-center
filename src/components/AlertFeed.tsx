@@ -3,6 +3,7 @@ import { useGame } from '../contexts/GameContext';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { 
   AlertTriangle, 
   Zap, 
@@ -10,11 +11,16 @@ import {
   Clock, 
   MapPin,
   Activity,
-  TrendingUp
+  TrendingUp,
+  Eye,
+  X
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 export const AlertFeed = () => {
   const { state } = useGame();
+  const [isMinimized, setIsMinimized] = useState(false);
 
   const getAlertIcon = (type: string) => {
     switch (type) {
@@ -45,18 +51,45 @@ export const AlertFeed = () => {
     });
   };
 
+  const handleAlertClick = (alert: any) => {
+    const AlertIcon = getAlertIcon(alert.type);
+    toast(alert.title, {
+      description: alert.description,
+      icon: <AlertIcon className="w-4 h-4" />,
+      action: {
+        label: 'Investigate',
+        onClick: () => {
+          toast.success('🔍 Investigation started', {
+            description: `Analyzing ${alert.location || 'unknown location'}`
+          });
+        }
+      }
+    });
+  };
+
   return (
-    <Card className="p-4 holographic h-64">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center space-x-2">
-          <Activity className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-primary">Alert Feed</h3>
+    <Card className={`holographic transition-all duration-300 ${isMinimized ? 'h-16' : 'h-64'}`}>
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <Activity className="w-5 h-5 text-primary" />
+            <h3 className="font-semibold text-primary">Alert Feed</h3>
+            <Badge variant="outline" className="text-xs border-destructive text-destructive">
+              {state.alerts.filter(a => a.severity === 'high' || a.severity === 'critical').length}
+            </Badge>
+          </div>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsMinimized(!isMinimized)}
+            className="h-8 w-8 p-0"
+          >
+            {isMinimized ? <Eye className="w-4 h-4" /> : <X className="w-4 h-4" />}
+          </Button>
         </div>
-        
-        <Badge variant="outline" className="text-xs border-destructive text-destructive">
-          {state.alerts.filter(a => a.severity === 'high' || a.severity === 'critical').length} Critical
-        </Badge>
-      </div>
+
+        {!isMinimized && (
 
       <ScrollArea className="h-48">
         <div className="space-y-2">
@@ -73,7 +106,8 @@ export const AlertFeed = () => {
               return (
                 <div
                   key={index}
-                  className={`p-2 rounded border transition-all duration-300 hover:bg-muted/20 ${
+                  onClick={() => handleAlertClick(alert)}
+                  className={`p-2 rounded border transition-all duration-300 hover:bg-muted/20 cursor-pointer hover:scale-105 ${
                     alert.severity === 'critical' ? 'animate-pulse' : ''
                   }`}
                 >
@@ -127,24 +161,27 @@ export const AlertFeed = () => {
           )}
         </div>
       </ScrollArea>
+        )}
+      </div>
 
-      {/* Quick Stats */}
-      <div className="mt-3 pt-3 border-t border-primary/20">
-        <div className="flex justify-between text-xs">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-destructive rounded-full"></div>
-            <span className="text-muted-foreground">Critical: {state.alerts.filter(a => a.severity === 'critical').length}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-warning rounded-full"></div>
-            <span className="text-muted-foreground">High: {state.alerts.filter(a => a.severity === 'high').length}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-success rounded-full"></div>
-            <span className="text-muted-foreground">Total: {state.alerts.length}</span>
+      {!isMinimized && (
+        <div className="mt-3 pt-3 border-t border-primary/20">
+          <div className="flex justify-between text-xs">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-destructive rounded-full"></div>
+              <span className="text-muted-foreground">Critical: {state.alerts.filter(a => a.severity === 'critical').length}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-warning rounded-full"></div>
+              <span className="text-muted-foreground">High: {state.alerts.filter(a => a.severity === 'high').length}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-success rounded-full"></div>
+              <span className="text-muted-foreground">Total: {state.alerts.length}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </Card>
   );
 };
